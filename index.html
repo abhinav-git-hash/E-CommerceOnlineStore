@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simple E-Commerce Store</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #333; color: white; padding: 15px; text-align: center; }
+    .container { width: 90%; max-width: 1000px; margin: 20px auto; padding: 10px; }
+    .products { display: flex; gap: 20px; flex-wrap: wrap; justify-content: flex-start; }
+    .product { border: 1px solid #ccc; padding: 15px; width: 220px; border-radius: 6px; box-sizing: border-box; }
+    .product img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; }
+    .product h3 { margin: 8px 0 4px; font-size: 18px; }
+    .product p { margin: 0 0 8px; }
+    .product button { background: #28a745; color: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+    .product button:hover { background: #218838; }
+    #cart { margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; }
+    #cart-items div { padding: 8px 0; border-bottom: 1px solid #ddd; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    #checkout { background: #007bff; color: white; border: none; padding: 10px 14px; cursor: pointer; border-radius:4px; }
+    #checkout:hover { background: #0069d9; }
+    .remove-btn { background: #dc3545; color: white; border: none; padding: 6px 8px; cursor: pointer; border-radius:4px; }
+    .remove-btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Simple E-Commerce Store</h1>
+  </header>
+
+  <div class="container">
+    <h2>Products</h2>
+    <div class="products" id="products-list">
+      <!-- Products are rendered here by HTML so teacher can read easily -->
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=600&q=60" alt="T-Shirt">
+        <h3>T-Shirt</h3>
+        <p>Price: ₹500</p>
+        <button onclick="addToCart('T-Shirt', 500)">Add to Cart</button>
+      </div>
+
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1518444021321-4cd7f0e1dfc0?auto=format&fit=crop&w=600&q=60" alt="Headphones">
+        <h3>Headphones</h3>
+        <p>Price: ₹1200</p>
+        <button onclick="addToCart('Headphones', 1200)">Add to Cart</button>
+      </div>
+
+      <div class="product">
+        <img src="https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=600&q=60" alt="Handmade Craft">
+        <h3>Handmade Craft</h3>
+        <p>Price: ₹300</p>
+        <button onclick="addToCart('Handmade Craft', 300)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div id="cart">
+      <h2>Shopping Cart</h2>
+      <div id="cart-items" aria-live="polite"></div>
+      <h3 id="total">Total: ₹0</h3>
+      <button id="checkout" onclick="checkout()">Proceed to Checkout</button>
+    </div>
+  </div>
+
+  <script>
+    // safe, simple shopping cart logic
+    (function () {
+      // keep cart in-memory (array of {name, price})
+      window.cart = [];
+
+      window.addToCart = function (name, price) {
+        // simple validation
+        if (!name || typeof price !== 'number') {
+          console.error('Invalid product data', name, price);
+          return;
+        }
+        window.cart.push({ name: String(name), price: Number(price) });
+        displayCart();
+      };
+
+      function formatRupee(n) {
+        // simple formatting (no dependency)
+        return '₹' + n;
+      }
+
+      window.displayCart = function () {
+        const cartItemsDiv = document.getElementById('cart-items');
+        cartItemsDiv.innerHTML = ''; // clear previous
+
+        let total = 0;
+
+        // create elements instead of using innerHTML template literals
+        window.cart.forEach((item, index) => {
+          const row = document.createElement('div');
+
+          const left = document.createElement('div');
+          left.textContent = `${item.name} - ${formatRupee(item.price)}`;
+
+          const right = document.createElement('div');
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'remove-btn';
+          removeBtn.textContent = 'Remove';
+          removeBtn.onclick = function () {
+            // remove item at this index and re-render
+            window.cart.splice(index, 1);
+            displayCart();
+          };
+
+          right.appendChild(removeBtn);
+          row.appendChild(left);
+          row.appendChild(right);
+
+          cartItemsDiv.appendChild(row);
+
+          total += item.price;
+        });
+
+        document.getElementById('total').innerText = `Total: ${formatRupee(total)}`;
+      };
+
+      window.checkout = function () {
+        if (!Array.isArray(window.cart) || window.cart.length === 0) {
+          alert('Your cart is empty!');
+          return;
+        }
+        const total = window.cart.reduce((s, it) => s + it.price, 0);
+        alert(`Checkout successful! Total: ₹${total}`);
+        window.cart = [];
+        displayCart();
+      };
+
+      // initial render
+      displayCart();
+    })();
+  </script>
+</body>
+</html>
